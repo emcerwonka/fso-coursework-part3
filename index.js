@@ -28,6 +28,13 @@ app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
 
+app.get('/api/info', (req, res) => {
+  const phonebookSize = persons.length
+  const date = new Date()
+  res.send(`<p>Phonebook has info for ${phonebookSize} people.</p>` + `<p>${date}</p>`)
+  res.end()
+})
+
 app.use(express.json())
 
 const port = 3001
