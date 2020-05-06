@@ -48,6 +48,13 @@ app.get('/api/info', (req, res) => {
   res.end()
 })
 
+app.delete('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+
+  persons = persons.filter(p => p.id !== id)
+  res.status(204).end()
+})
+
 app.use(express.json())
 
 const port = 3001
