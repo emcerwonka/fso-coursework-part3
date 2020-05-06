@@ -28,9 +28,22 @@ app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
 
+app.get('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+  const person = persons.find(p => p.id === id)
+  
+  if (person) {
+    res.json(person)
+  } else {
+    const error = `Person with ID ${id} not found.`
+    res.status(404).send(error);
+  }
+})
+
 app.get('/api/info', (req, res) => {
   const phonebookSize = persons.length
   const date = new Date()
+  
   res.send(`<p>Phonebook has info for ${phonebookSize} people.</p>` + `<p>${date}</p>`)
   res.end()
 })
