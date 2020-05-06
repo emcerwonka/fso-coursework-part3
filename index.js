@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
   {
     name: "Arto Hellas",
@@ -24,6 +26,12 @@ let persons = [
   },
 ]
 
+const generateId = () => {
+  const min = 4
+  const max = 1000000
+  return Math.floor(Math.random() * (max - min)) + min
+}
+
 app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
@@ -35,8 +43,9 @@ app.get('/api/persons/:id', (req, res) => {
   if (person) {
     res.json(person)
   } else {
-    const error = `Person with ID ${id} not found.`
-    res.status(404).send(error);
+    return res.status(404).json({
+      error: `Person with ID ${id} not found.`
+    })
   }
 })
 
@@ -46,6 +55,33 @@ app.get('/api/info', (req, res) => {
   
   res.send(`<p>Phonebook has info for ${phonebookSize} people.</p>` + `<p>${date}</p>`)
   res.end()
+})
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+  console.log(body)
+
+  if (!body.name || !body.number) {
+    return res.status(400).json({
+      error: 'Missing information. Name and number are required'
+    })
+  }
+
+  if (persons.find(p => p.name === body.name)) {
+    return res.status(400).json({
+      error: 'Name already exists in phonebook. Names must be unique.'
+    })
+  }
+
+  let person = {
+    name: body.name,
+    number: body.number,
+    id: generateId()
+  }
+
+  persons = persons.concat(person)
+  res.status(204).end()
+
 })
 
 app.delete('/api/persons/:id', (req, res) => {
