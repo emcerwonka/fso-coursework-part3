@@ -48,7 +48,7 @@ app.get('/api/persons', (req, res) => {
 app.get('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
   const person = persons.find(p => p.id === id)
-  
+
   if (person) {
     res.json(person)
   } else {
@@ -61,7 +61,7 @@ app.get('/api/persons/:id', (req, res) => {
 app.get('/api/info', (req, res) => {
   const phonebookSize = persons.length
   const date = new Date()
-  
+
   res.send(`<p>Phonebook has info for ${phonebookSize} people.</p>` + `<p>${date}</p>`)
   res.end()
 })
@@ -99,6 +99,7 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end()
 })
 
-const port = 3001
-app.listen(port)
-console.log(`Server running on port ${port}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
