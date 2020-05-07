@@ -1,8 +1,10 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 const app = express()
 
 app.use(express.json())
+app.use(cors())
 
 morgan.token('req-body', (req, res) => {
   return JSON.stringify(req.body)
@@ -86,8 +88,8 @@ app.post('/api/persons', (req, res) => {
   }
 
   persons = persons.concat(person)
-  res.status(204).end()
-
+  console.log('Newly constructed person: ', person)
+  res.status(200).json(person)
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -96,8 +98,6 @@ app.delete('/api/persons/:id', (req, res) => {
   persons = persons.filter(p => p.id !== id)
   res.status(204).end()
 })
-
-app.use(express.json())
 
 const port = 3001
 app.listen(port)
