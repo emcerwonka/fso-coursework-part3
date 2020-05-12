@@ -1,10 +1,15 @@
 const mongoose = require('mongoose')
 
 const url = process.env.MONGO_URI
+const connectOpts = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false
+}
 
 // Initialize MongoDB connection
 console.log(`Connecting to MongoDB at ${url}`)
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(url, connectOpts)
 
 // Create and export 'Person' schema
 const personSchema = new mongoose.Schema({

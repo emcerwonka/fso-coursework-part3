@@ -9,13 +9,13 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
+// Configure and register morgan logging middleware
 morgan.token('req-body', (req, res) => {
   return JSON.stringify(req.body)
 })
-
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'))
 
-// GET all person records
+// Get all person records
 app.get('/api/persons', (req, res) => {
   console.log('Retrieving all phonebook entries...')
   Person.find({}).then(persons => {
@@ -23,16 +23,17 @@ app.get('/api/persons', (req, res) => {
   })
 })
 
-// GET one person by ID
+// Get one person by ID
 app.get('/api/persons/:id', (req, res) => {
   console.log('Retrieving record for person with ID: ', req.params.id)
   Person.findById(req.params.id)
     .then(person => {
       res.json(person.toJSON())
     })
+    .catch(error => next(error))
 })
 
-// GET phonebook data
+// Get phonebook data
 app.get('/api/info', (req, res) => {
   console.log('Retrieving phonebook information...')
   Person.count({}).then(count => {
@@ -41,7 +42,7 @@ app.get('/api/info', (req, res) => {
   })
 })
 
-// POST a new phonebook entry
+// Create a new phonebook entry
 app.post('/api/persons', (req, res) => {
   const body = req.body
 
@@ -61,12 +62,25 @@ app.post('/api/persons', (req, res) => {
   })
 })
 
-// app.delete('/api/persons/:id', (req, res) => {
-//   const id = Number(req.params.id)
+// Delete an entry from the phonebook
+app.delete('/api/persons/:id', (req, res) => {
+  Person.findByIdAndRemove(req.params.id)
+    .then(result => {
+      res.status(204).end()
+    })
+})
 
-//   persons = persons.filter(p => p.id !== id)
-//   res.status(204).end()
-// })
+// Define and use error handling middleware
+const errorHandler = (error, req, res, next) => {
+  console.log(error.message)
+
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: 'Malformed ID'})
+  }
+
+  next(error)
+}
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
