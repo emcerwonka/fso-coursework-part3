@@ -24,7 +24,7 @@ app.get('/api/persons', (req, res) => {
 })
 
 // Get one person by ID
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
   console.log('Retrieving record for person with ID: ', req.params.id)
   Person.findById(req.params.id)
     .then(person => {
@@ -45,8 +45,12 @@ app.get('/api/info', (req, res) => {
 // Create a new phonebook entry
 app.post('/api/persons', (req, res) => {
   const body = req.body
+  console.log("body.name", body.name)
+  console.log("body.name.length", body.name.length)
+  console.log("body.number", body.number)
+  console.log("body.name.length", body.number.length)
 
-  if (!body.name || !body.number) {
+  if (!body.name || body.name.length === 0 || !body.number || body.number.length === 0) {
     return res.status(400).json({
       error: 'Missing information. Name and number are required'
     })
@@ -63,11 +67,12 @@ app.post('/api/persons', (req, res) => {
 })
 
 // Delete an entry from the phonebook
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
     .then(result => {
       res.status(204).end()
     })
+    .catch(error => next(error))
 })
 
 // Define and use error handling middleware
