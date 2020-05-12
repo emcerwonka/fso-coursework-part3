@@ -45,10 +45,6 @@ app.get('/api/info', (req, res) => {
 // Create a new phonebook entry
 app.post('/api/persons', (req, res) => {
   const body = req.body
-  console.log("body.name", body.name)
-  console.log("body.name.length", body.name.length)
-  console.log("body.number", body.number)
-  console.log("body.name.length", body.number.length)
 
   if (!body.name || body.name.length === 0 || !body.number || body.number.length === 0) {
     return res.status(400).json({
@@ -64,6 +60,21 @@ app.post('/api/persons', (req, res) => {
   person.save().then(savedPerson => {
     res.status(200).json(savedPerson.toJSON())
   })
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
+
+  const person = {
+    name: body.name,
+    number: body.number
+  }
+
+  Person.findByIdAndUpdate(req.params.id, body, { new: true} )
+    .then(updatedPerson => {
+      res.status(200).json(updatedPerson.toJSON())
+    })
+    .catch(error => next(error))
 })
 
 // Delete an entry from the phonebook
