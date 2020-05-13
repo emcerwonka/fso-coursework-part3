@@ -38,28 +38,24 @@ app.get('/api/info', (req, res) => {
   console.log('Retrieving phonebook information...')
   Person.count({}).then(count => {
     const date = new Date()
-    res.send(`<p>Phonebook has info for ${count} people.</p>` + `<p>${date}</p>`)  
+    res.send(`<p>Phonebook has info for ${count} people.</p>` + `<p>${date}</p>`)
   })
 })
 
 // Create a new phonebook entry
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
-
-  if (!body.name || body.name.length === 0 || !body.number || body.number.length === 0) {
-    return res.status(400).json({
-      error: 'Missing information. Name and number are required'
-    })
-  }
 
   let person = new Person({
     name: body.name,
     number: body.number
   })
 
-  person.save().then(savedPerson => {
-    res.status(200).json(savedPerson.toJSON())
-  })
+  person.save()
+    .then(savedPerson => {
+      res.status(200).json(savedPerson.toJSON())
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
@@ -70,7 +66,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     number: body.number
   }
 
-  Person.findByIdAndUpdate(req.params.id, body, { new: true} )
+  Person.findByIdAndUpdate(req.params.id, body, { new: true })
     .then(updatedPerson => {
       res.status(200).json(updatedPerson.toJSON())
     })
@@ -91,7 +87,9 @@ const errorHandler = (error, req, res, next) => {
   console.log(error.message)
 
   if (error.name === 'CastError') {
-    return res.status(400).send({ error: 'Malformed ID'})
+    return res.status(400).send({ error: 'Malformed ID' })
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).send({ error: error.message })
   }
 
   next(error)
